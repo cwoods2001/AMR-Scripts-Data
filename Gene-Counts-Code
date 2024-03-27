@@ -1,0 +1,23 @@
+# read in packages
+import pandas as pd
+
+# read in file
+Just_ARGs = pd.read_csv("STAR_AMR.csv")
+
+# check first few lines of file
+Just_ARGs.head()
+
+# select specific columns
+genome_ids_amr_gene = Just_ARGs[['Isolate ID', 'Gene']]
+
+# drop duplicates
+genome_ids_amr_gene = genome_ids_amr_gene.drop_duplicates()
+
+# make a new column by grouping by the name and the gene --> gene counts
+genome_ids_amr_gene_grouped =  genome_ids_amr_gene.groupby(["Isolate ID", "Gene"]).size().reset_index(name="ARG_freq")
+
+# convert into a table format to get gene counts for every gene (i.e. presence and absence)
+table = pd.pivot_table(genome_ids_amr_gene_grouped, values='ARG_freq', index='Isolate ID', columns='Gene', fill_value=0)
+
+# save file as a csv file
+table.to_csv("gene_counts_genomes_w_ARGs.csv", index=True)
